@@ -1,0 +1,334 @@
+import { useState, FormEvent } from 'react';
+import axios from 'axios';
+
+interface Tool {
+  name: string;
+  installed: string;
+  skillLevel: string;
+}
+
+interface FormData {
+  name: string;
+  email: string;
+  tools: Tool[];
+  painPoints: {
+    images: boolean;
+    inventory: boolean;
+    manualTasks: boolean;
+    other: boolean;
+    otherText: string;
+  };
+}
+
+export default function WorkshopForm() {
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    email: '',
+    tools: [
+      { name: 'Claude', installed: '', skillLevel: '' },
+      { name: 'Claude Code', installed: '', skillLevel: '' },
+      { name: 'n8n', installed: '', skillLevel: '' },
+    ],
+    painPoints: {
+      images: false,
+      inventory: false,
+      manualTasks: false,
+      other: false,
+      otherText: '',
+    },
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleToolChange = (index: number, field: 'installed' | 'skillLevel', value: string) => {
+    const newTools = [...formData.tools];
+    newTools[index][field] = value;
+    setFormData({ ...formData, tools: newTools });
+  };
+
+  const handlePainPointChange = (field: keyof typeof formData.painPoints, value: boolean | string) => {
+    setFormData({
+      ...formData,
+      painPoints: {
+        ...formData.painPoints,
+        [field]: value,
+      },
+    });
+  };
+
+  const validateForm = (): boolean => {
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      return false;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    if (formData.painPoints.other && !formData.painPoints.otherText.trim()) {
+      setError('Please specify the "Other" pain point');
+      return false;
+    }
+
+    setError('');
+    return true;
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const webhookUrl = import.meta.env.VITE_WEBHOOK_URL;
+
+      if (!webhookUrl) {
+        throw new Error('Webhook URL is not configured');
+      }
+
+      await axios.post(webhookUrl, formData);
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred while submitting the form');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-4">
+        <div className="card max-w-2xl w-full animate-fade-in text-center">
+          <div className="mb-6">
+            <svg
+              className="mx-auto h-16 w-16 text-success"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-white mb-4">Thank You!</h2>
+          <p className="text-text-secondary text-lg">
+            Your form has been submitted successfully. We'll be in touch soon!
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 flex items-center justify-center p-4">
+      <div className="card max-w-4xl w-full animate-fade-in">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-2">AI Workshop Registration</h2>
+          <p className="text-text-secondary">
+            Complete here and submit
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-error/10 border border-error/30 rounded-lg text-error text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Name and Email */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-2">
+                Name <span className="text-error">*</span>
+              </label>
+              <input
+                id="name"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+                disabled={loading}
+                placeholder="Your name"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-2">
+                Email <span className="text-error">*</span>
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+                disabled={loading}
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
+
+          {/* Tools Table */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Tool Installation & Skill Level
+            </h3>
+            <p className="text-sm text-text-secondary mb-4">
+              This information is essential. We need to confirm you have the tools installed
+              and subscriptions active. If not, we'll arrange a group call with Leo to help
+              with setup. It also helps us tailor the course to everyone's needs.
+            </p>
+
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Tool</th>
+                    <th>Installed (Yes/No)</th>
+                    <th>Skill level (0–5)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {formData.tools.map((tool, index) => (
+                    <tr key={tool.name}>
+                      <td className="font-medium text-white">{tool.name}</td>
+                      <td>
+                        <select
+                          value={tool.installed}
+                          onChange={(e) => handleToolChange(index, 'installed', e.target.value)}
+                          disabled={loading}
+                          className="w-full"
+                        >
+                          <option value="">Select...</option>
+                          <option value="Yes">Yes</option>
+                          <option value="No">No</option>
+                        </select>
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          value={tool.skillLevel}
+                          onChange={(e) => handleToolChange(index, 'skillLevel', e.target.value)}
+                          disabled={loading}
+                          placeholder="0-5"
+                          className="w-full"
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Business Pain Points */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Business pain points <span className="text-sm font-normal text-text-secondary">(select all that apply)</span>
+            </h3>
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.painPoints.images}
+                  onChange={(e) => handlePainPointChange('images', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">
+                  Images (main image and/or image stack)
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.painPoints.inventory}
+                  onChange={(e) => handlePainPointChange('inventory', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">
+                  Inventory/accounting/data
+                </span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.painPoints.manualTasks}
+                  onChange={(e) => handlePainPointChange('manualTasks', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">
+                  Manual tasks draining you or your team
+                </span>
+              </label>
+
+              <div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.painPoints.other}
+                    onChange={(e) => handlePainPointChange('other', e.target.checked)}
+                    disabled={loading}
+                    className="mt-1"
+                  />
+                  <span className="text-text-secondary">Other (please specify):</span>
+                </label>
+                {formData.painPoints.other && (
+                  <textarea
+                    value={formData.painPoints.otherText}
+                    onChange={(e) => handlePainPointChange('otherText', e.target.value)}
+                    disabled={loading}
+                    placeholder="Please describe your pain point..."
+                    className="mt-3 min-h-[100px]"
+                    rows={4}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn btn-primary w-full"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="spinner" />
+                Submitting...
+              </span>
+            ) : (
+              'Submit'
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}

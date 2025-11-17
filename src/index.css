@@ -1,0 +1,268 @@
+@import "tailwindcss";
+
+:root {
+  /* Design Loop Studio Color Palette */
+  --background: #030C1B;
+  --foreground: #F1F5F9;
+
+  /* Primary Colors */
+  --primary-purple: #9D4EDD;
+  --secondary-purple: #B162F1;
+  --accent-purple-light: #C77DFF;
+  --accent-purple-dark: #7B2CBF;
+
+  /* Background Colors */
+  --bg-primary: #030C1B;
+  --bg-secondary: #120B29;
+  --bg-tertiary: #0D1229;
+  --bg-card: #120B29;
+
+  /* Text Colors */
+  --text-primary: #F1F5F9;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+
+  /* Status Colors */
+  --success: #22C55E;
+  --warning: #EAB308;
+  --error: #EF4444;
+  --info: #3B82F6;
+
+  /* Border & Divider */
+  --border: rgba(157, 78, 221, 0.2);
+  --divider: rgba(241, 245, 249, 0.1);
+}
+
+@theme inline {
+  /* Background */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Primary Purple Palette */
+  --color-primary-purple: var(--primary-purple);
+  --color-secondary-purple: var(--secondary-purple);
+  --color-accent-purple-light: var(--accent-purple-light);
+  --color-accent-purple-dark: var(--accent-purple-dark);
+
+  /* Backgrounds */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-card: var(--bg-card);
+
+  /* Text */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  /* Status */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  /* Border */
+  --color-border: var(--border);
+  --color-divider: var(--divider);
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Glass effect utility */
+.glass {
+  background: rgba(15, 23, 41, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(157, 78, 221, 0.2);
+}
+
+/* Card styles */
+.card {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(157, 78, 221, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+}
+
+/* Purple glow effect */
+.glow-purple {
+  box-shadow: 0 0 20px rgba(157, 78, 221, 0.4),
+              0 0 40px rgba(157, 78, 221, 0.2);
+}
+
+/* Button base styles */
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  font-size: 14px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-purple) 0%, var(--secondary-purple) 100%);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 8px 24px rgba(157, 78, 221, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--primary-purple);
+  color: var(--primary-purple);
+}
+
+.btn-secondary:hover {
+  background: rgba(157, 78, 221, 0.1);
+}
+
+/* Input styles */
+input[type="text"],
+input[type="email"],
+input[type="number"],
+textarea,
+select {
+  background: var(--bg-secondary);
+  border: 1px solid rgba(157, 78, 221, 0.3);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-purple);
+  box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.1);
+}
+
+/* Checkbox styles */
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--primary-purple);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-purple);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-purple);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-purple {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(157, 78, 221, 0.6);
+  }
+}
+
+@keyframes headerRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-pulse-purple {
+  animation: pulse-purple 2s ease-in-out infinite;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  border: 3px solid rgba(157, 78, 221, 0.2);
+  border-top-color: var(--primary-purple);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner-large {
+  border: 4px solid rgba(157, 78, 221, 0.2);
+  border-top-color: var(--primary-purple);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Table styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+}
+
+th {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+td {
+  color: var(--text-secondary);
+}
