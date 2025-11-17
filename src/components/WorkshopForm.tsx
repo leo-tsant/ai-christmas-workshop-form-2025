@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useRef } from 'react';
 import axios from 'axios';
 
 interface Tool {
@@ -61,6 +61,7 @@ export default function WorkshopForm() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const emailRef = useRef<HTMLInputElement>(null);
 
   const handleToolChange = (index: number, field: 'installed' | 'skillLevel', value: string) => {
     const newTools = [...formData.tools];
@@ -115,6 +116,14 @@ export default function WorkshopForm() {
 
       if (!isEmailAllowed) {
         setError('This email address is not registered for the workshop. Please use the email you used when purchasing your ticket. If someone else purchased your ticket, use the email address you provided to us when we collected attendee information.');
+
+        // Clear the email field
+        setFormData({ ...formData, email: '' });
+
+        // Scroll to email field
+        emailRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        emailRef.current?.focus();
+
         return false;
       }
     }
@@ -251,6 +260,7 @@ export default function WorkshopForm() {
                 Email <span className="text-error">*</span>
               </label>
               <input
+                ref={emailRef}
                 id="email"
                 type="email"
                 value={formData.email}
