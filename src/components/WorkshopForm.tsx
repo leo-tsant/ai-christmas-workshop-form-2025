@@ -18,6 +18,16 @@ interface FormData {
     other: boolean;
     otherText: string;
   };
+  dietary: {
+    noPreference: boolean;
+    vegetarian: boolean;
+    vegan: boolean;
+    halal: boolean;
+    glutenFree: boolean;
+    dairyFree: boolean;
+    other: boolean;
+    otherText: string;
+  };
 }
 
 export default function WorkshopForm() {
@@ -33,6 +43,16 @@ export default function WorkshopForm() {
       images: false,
       inventory: false,
       manualTasks: false,
+      other: false,
+      otherText: '',
+    },
+    dietary: {
+      noPreference: false,
+      vegetarian: false,
+      vegan: false,
+      halal: false,
+      glutenFree: false,
+      dairyFree: false,
       other: false,
       otherText: '',
     },
@@ -58,6 +78,16 @@ export default function WorkshopForm() {
     });
   };
 
+  const handleDietaryChange = (field: keyof typeof formData.dietary, value: boolean | string) => {
+    setFormData({
+      ...formData,
+      dietary: {
+        ...formData.dietary,
+        [field]: value,
+      },
+    });
+  };
+
   const validateForm = (): boolean => {
     if (!formData.name.trim()) {
       setError('Name is required');
@@ -74,8 +104,28 @@ export default function WorkshopForm() {
       return false;
     }
 
+    // Check if email is in the allowed list
+    const allowedEmailsString = import.meta.env.VITE_ALLOWED_EMAILS;
+    if (allowedEmailsString) {
+      const allowedEmails = allowedEmailsString
+        .split(',')
+        .map(email => email.trim().toLowerCase());
+
+      const isEmailAllowed = allowedEmails.includes(formData.email.toLowerCase());
+
+      if (!isEmailAllowed) {
+        setError('This email address is not registered for the workshop. Please use the email you used when purchasing your ticket. If someone else purchased your ticket, use the email address you provided to us when we collected attendee information.');
+        return false;
+      }
+    }
+
     if (formData.painPoints.other && !formData.painPoints.otherText.trim()) {
       setError('Please specify the "Other" pain point');
+      return false;
+    }
+
+    if (formData.dietary.other && !formData.dietary.otherText.trim()) {
+      setError('Please specify your "Other" dietary requirements');
       return false;
     }
 
@@ -331,6 +381,106 @@ export default function WorkshopForm() {
                     placeholder="Please describe your pain point..."
                     className="mt-3 min-h-[100px]"
                     rows={4}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Dietary Requirements */}
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-2">
+              Dietary and refreshments
+            </h3>
+            <p className="text-sm text-text-secondary mb-4">
+              We will provide snacks and beverages at the workshop. Please tick all that apply so we can plan cost-effective options:
+            </p>
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.dietary.noPreference}
+                  onChange={(e) => handleDietaryChange('noPreference', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">No preference</span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.dietary.vegetarian}
+                  onChange={(e) => handleDietaryChange('vegetarian', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">Vegetarian</span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.dietary.vegan}
+                  onChange={(e) => handleDietaryChange('vegan', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">Vegan</span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.dietary.halal}
+                  onChange={(e) => handleDietaryChange('halal', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">Halal</span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.dietary.glutenFree}
+                  onChange={(e) => handleDietaryChange('glutenFree', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">Gluten-free</span>
+              </label>
+
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.dietary.dairyFree}
+                  onChange={(e) => handleDietaryChange('dairyFree', e.target.checked)}
+                  disabled={loading}
+                  className="mt-1"
+                />
+                <span className="text-text-secondary">Dairy-free</span>
+              </label>
+
+              <div>
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.dietary.other}
+                    onChange={(e) => handleDietaryChange('other', e.target.checked)}
+                    disabled={loading}
+                    className="mt-1"
+                  />
+                  <span className="text-text-secondary">Other (please specify):</span>
+                </label>
+                {formData.dietary.other && (
+                  <textarea
+                    value={formData.dietary.otherText}
+                    onChange={(e) => handleDietaryChange('otherText', e.target.value)}
+                    disabled={loading}
+                    placeholder="Please specify your dietary requirements..."
+                    className="mt-3 min-h-[80px]"
+                    rows={3}
                   />
                 )}
               </div>
